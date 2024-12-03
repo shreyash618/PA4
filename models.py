@@ -94,7 +94,9 @@ class RegressionModel(Module):
         "*** YOUR CODE HERE ***"
         super().__init__()
 
-
+        #setting up the single hidden layer and the output
+        self.hidden_layer = Linear(1, 100)
+        self.output = Linear(100, 1)
 
     def forward(self, x):
         """
@@ -107,6 +109,13 @@ class RegressionModel(Module):
         """
         "*** YOUR CODE HERE ***"
 
+        #hidden layer activation
+        hidden_layer_activate = self.hidden_layer(x)
+        #activate with the relu
+        activated = relu(hidden_layer_activate)
+        #activating the output layer for the final node
+        node = self.output(activated) 
+        return node
     
     def get_loss(self, x, y):
         """
@@ -119,6 +128,12 @@ class RegressionModel(Module):
         Returns: a tensor of size 1 containing the loss
         """
         "*** YOUR CODE HERE ***"
+        
+        #getting the predicted y
+        predicted_y = self(x)
+        #then calculating the loss
+        loss = mse_loss(predicted_y, y)
+        return loss
  
   
 
@@ -138,12 +153,33 @@ class RegressionModel(Module):
         """
         "*** YOUR CODE HERE ***"
 
+        #the learning rate will be 0.01, batch size is 20 which is evenly divisible
+        learning_rate=0.01
+        dataloader = DataLoader(dataset, batch_size=20, shuffle=True)
 
-            
+        #running through dataset for training 1500 times
+        for i in range(1500): 
+            #variable to keep tracsk of the total loss
+            total_loss = 0.0
+            for batch in dataloader:
 
+                #getting the features and the label
+                x = batch['x']
+                y = batch['label']
 
+                self.zero_grad()
 
+                #getting the loss and keeping track of the totalloss
+                loss = self.get_loss(x, y)
+                total_loss += loss.item() 
 
+                #calculating the gradients
+                loss.backward()
+
+                #updating based on gradient if it exists
+                for param in self.parameters():
+                    if param.grad is not None:
+                        param.data = param.data - learning_rate * param.grad.data
 
 
 
