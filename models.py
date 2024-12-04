@@ -88,7 +88,8 @@ class PerceptronModel(Module):
             "*** YOUR CODE HERE ***"
             converged = False
             while not converged:
-                converged = True
+                #assume the values have converged, which will break the loop at next iteration unless its changed again
+                converged = True   
                 for batch in dataloader:
                     x = batch['x']
                     label = batch['label']
@@ -96,8 +97,8 @@ class PerceptronModel(Module):
                     prediction = self.get_prediction(x)
                     if (prediction != label):
                         #update the weights
-                        self.w += label + x
-                        converged = False
+                        self.w += label * x
+                        converged = False #continue the loop becauuse the values have not converged
 
 
 class RegressionModel(Module):
