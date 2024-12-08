@@ -1,7 +1,7 @@
+#Shreya Shukla (ss4515) and Medhasri Veldurthi (mv670)
 from torch import no_grad, stack
 from torch.utils.data import DataLoader
 from torch.nn import Module
-
 
 """
 Functions you should use.
@@ -221,8 +221,10 @@ class DigitClassificationModel(Module):
         input_size = 28 * 28
         output_size = 10
         "*** YOUR CODE HERE ***"
-
-
+        #define the different layers of the neural network
+        self.layer1 = Linear(input_size, 128)
+        self.layer2 = Linear(128, 64)
+        self.layer3 = Linear(64, output_size)
 
     def run(self, x):
         """
@@ -239,7 +241,11 @@ class DigitClassificationModel(Module):
                 (also called logits)
         """
         """ YOUR CODE HERE """
+        activate_L1 = relu(self.layer1(x))
+        activate_L2 = relu(self.layer2(activate_L1))
+        outputs = self.layer3(activate_L2)
 
+        return outputs
 
     def get_loss(self, x, y):
         """
@@ -255,6 +261,9 @@ class DigitClassificationModel(Module):
         Returns: a loss tensor
         """
         """ YOUR CODE HERE """
+        v = self.run(x)
+        loss = cross_entropy(v, y)
+        return loss
 
         
 
@@ -263,3 +272,31 @@ class DigitClassificationModel(Module):
         Trains the model.
         """
         """ YOUR CODE HERE """
+
+        learning_rate = 0.005
+        
+        optimizer = optim.Adam(self.parameters(), lr=learning_rate)
+
+        dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+        num_epochs = 10
+
+        for epoch in range(num_epochs):
+            total_loss = 0
+            for batch in dataloader:
+            #getting the features and the label
+                x = batch['x']
+                y = batch['label']
+
+                #reset the gradients calculated by pytorch
+                optimizer.zero_grad()
+
+                #getting the loss and keeping track of the totalloss
+                loss = self.get_loss(x, y)
+                total_loss += loss.item() 
+
+                #backpropagation
+                loss.backward()         
+
+                #update your weights 
+                optimizer.step()
